@@ -1,0 +1,327 @@
+/*
+ * Hearth design tokens (docs/SPEC.md §9).
+ *
+ * How theming works
+ * - Every colour is written once as light-dark(light, dark). The browser resolves it against the
+ *   element's color-scheme, so the system setting is followed by default, [data-theme='light'|'dark']
+ *   on any element forces a theme for that subtree, and nested themes just work.
+ * - [data-role='tenant'|'landlord'|'trade'] marks a portal: it maps --accent* to the role colour and,
+ *   for trade, applies the Hi-Vis rules (Atkinson Hyperlegible Next, 7:1 text, bigger controls).
+ * - [data-role-accent='tenant'|...] recolours one element (a role chip, an avatar badge) without the
+ *   portal rules, so a tenant chip inside the trade portal keeps the trade font and contrast.
+ * - Set data-theme at or above data-role, never below it.
+ *
+ * Contrast (WCAG 2.2). Text needs 4.5:1 (AA); the trade portal needs 7:1. Control boundaries and
+ * meaningful graphics need 3:1. Computed with the WCAG relative-luminance formula and checked by
+ * src/styles/tokens.test.ts, which fails if a value here changes without its ratio holding.
+ *
+ *   LIGHT                                    ratio   | DARK                                     ratio
+ *   ink #2B2320 on bg #F7F2EA                13.82   | ink #F5EEE6 on bg #1B1714                15.48
+ *   ink on surface #FFFCF7                   15.04   | ink on surface #26201C                   13.98
+ *   ink on surface-2 #EFE7DB                 12.55   | ink on surface-2 #2F2823                 12.60
+ *   muted #6A5E55 on bg                       5.63   | muted #BFB2A6 on bg                       8.59
+ *   muted on surface                          6.13   | muted on surface                          7.76
+ *   muted on surface-2                        5.12   | muted on surface-2                        7.00
+ *   input-border #8C7F73 on surface (3:1)     3.80   | input-border #8A7D71 on surface (3:1)     4.02
+ *   input-border on bg (3:1)                  3.49   | input-border on bg (3:1)                  4.45
+ *   brand #1F3A34 on bg                      11.00   | brand #A8CFC3 on surface                  9.48
+ *   on-brand #FFFFFF on brand                12.26   | on-brand #13201C on brand                 9.89
+ *   tenant #A8401F on bg                      5.51   | tenant #F08A6C on bg                      7.26
+ *   tenant on tint #F8E4DB                    5.01   | tenant on tint #3B2419                    5.89
+ *   on-tenant #FFFFFF on tenant               6.14   | on-tenant #1B1714 on tenant               7.26
+ *   landlord #2F6A4F on bg                    5.72   | landlord #7FC4A0 on surface               7.89
+ *   landlord on tint #DDEDE3                  5.25   | landlord on tint #1E3328                  6.61
+ *   on-landlord #FFFFFF on landlord           6.37   | on-landlord #1B1714 on landlord           8.74
+ *   trade-text #8A5A00 on bg                  5.32   | trade #F2C14E on surface                  9.58
+ *   trade-text on tint #FBEFCF                5.18   | trade on tint #3A2E12                     7.92
+ *   on-trade #2B2320 on ochre #E0A526         7.02   | on-trade #1B1714 on trade                10.61
+ *   danger #B3261E on bg                      5.87   | danger #F2877E on bg                      7.24
+ *   on-danger #FFFFFF on danger               6.54   | on-danger #1B1714 on danger               7.24
+ *   critical #B3261E on tint #FBE4E1          5.38   | critical #F2877E on tint #3D2220          5.90
+ *   positive #1E6650 on tint #DCEFE6          5.71   | positive #8FD1B5 on tint #1F3129          7.82
+ *   caution #7A3668 on tint #F5E4EE           6.74   | caution #E3A6CF on tint #3A2433           7.18
+ *   info #2F5A7A on tint #E1EBF3              6.07   | info #9CC3E3 on tint #22303B              7.29
+ *   score #C77700 on bg (graphic, 3:1)        3.11   | score #E9A23B on surface-2 (graphic)      6.69
+ *   score on surface (bar fill, 3:1)          3.38   | score on bg                               8.22
+ *   muted on tenant tint                      5.12   | muted on tenant tint                       6.98
+ *   muted on landlord tint                    5.17   | muted on landlord tint                     6.50
+ *   muted on trade tint                       5.49   | muted on trade tint                        6.42
+ *   muted on brand tint #DFE8E4               5.02   | brand on brand tint #1D2D29                8.48
+ *   tooltip bg-colour text on ink            13.82   | tooltip text on ink                       15.48
+ *   ink on avatar grounds (lowest)           11.46   | ink on avatar grounds (lowest)             9.72
+ *
+ *   HOVER AND PRESSED (fills mix toward --accent-shade, away from the label colour)
+ *   white on tenant hover #953D21             7.08   | dark on tenant hover #F2997D               8.16
+ *   white on landlord hover #316048           7.25   | dark on landlord pressed #9DCEB0          10.08
+ *   ink on trade hover #E5B253                7.94   | dark on trade hover #F3C869               11.26
+ *   white on danger hover #9F2A21             7.43   | dark on danger hover #F4968C               8.13
+ *   Soft buttons keep their tint on hover and gain an inset accent ring, so text contrast holds.
+ *
+ *   TRADE HI-VIS (7:1 for essential text)
+ *   ink on bg                                13.82   | ink on bg                                15.48
+ *   muted #51463F on bg                       8.20   | muted #CDC1B5 on surface                  9.11
+ *   muted on surface-2                        7.45   | muted on surface-2                        8.21
+ *   trade-text #664300 on bg                  7.96   | trade #F2C14E on tint                     7.92
+ *   trade-text on tint                        7.75   | on-trade #1B1714 on trade                10.61
+ *   on-trade #2B2320 on ochre                 7.02   | ink on surface                           13.98
+ *   tenant-text #7F2F14 on tenant tint        7.38   | tenant-text #F4B09E on tenant tint        7.95
+ *   landlord-text #1F4F39 on landlord tint    7.74   | landlord-text #9FD8BA on landlord tint    8.34
+ *   critical #8F1E17 on critical tint         7.31   | critical #FF9C92 on critical tint         7.20
+ *   positive #154D3C on positive tint         8.12   | positive #8FD1B5 on positive tint         7.82
+ *   caution #5E2750 on caution tint           9.15   | caution #E3A6CF on caution tint           7.18
+ *   info #214460 on info tint                 8.43   | info #9CC3E3 on info tint                 7.29
+ *   on-danger #FFFFFF on danger #8F1E17       8.88   | on-danger #1B1714 on danger #FF9C92       8.84
+ *   input-border #6A5E55 on surface (3:1)     6.13   | input-border #A89B8F on surface (3:1)     5.60
+ *
+ *   STATE GRAPHICS: --accent-strong (radio dots, checked edges, tab underlines, step rings; 3:1)
+ *   Clay, moss and spruce pass as they are. Ochre #E0A526 on surface is only 2.14, so the trade
+ *   accent uses the dark ochre for these, and keeps ochre for the fills:
+ *   trade-text #8A5A00 on surface             5.79   | trade #F2C14E on surface                  9.58
+ *   trade-text-hivis #664300 on surface       8.67   | (the same in the trade portal)
+ *   trade-text-hivis on ochre (checked edge)  4.05   |
+ *
+ *   DANGER vs PORTAL ACCENT: red #B3261E against tenant clay #A8401F is 1.06:1 (dark: 1.00), so a
+ *   filled danger button reads as a tenant primary. Danger is therefore outlined by default:
+ *   danger on surface                         6.39   | danger on surface                         6.54
+ *   danger on critical tint (hover)           5.38   | danger on critical tint (hover)           5.90
+ *   Hi-Vis danger on surface / tint     8.67 / 7.31   | Hi-Vis danger on surface / tint     7.98 / 7.20
+ *
+ * Gold/ochre is structural (the trade role), never a status. Status tones are red (critical),
+ * heather (caution), slate blue (info) and green (positive), and always come with an icon and words.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ── Surfaces and text ─────────────────────────────────────────────────────────────── */
+  --bg: light-dark(#f7f2ea, #1b1714);
+  --surface: light-dark(#fffcf7, #26201c);
+  /* Sunken wells, hover fills and bar tracks. */
+  --surface-2: light-dark(#efe7db, #2f2823);
+  --ink: light-dark(#2b2320, #f5eee6);
+  --muted: light-dark(#6a5e55, #bfb2a6);
+  --muted-hivis: light-dark(#51463f, #cdc1b5);
+  /* Decorative hairlines. Never the only boundary of a control: controls use --input-border. */
+  --line: light-dark(#e4dacb, #3a322c);
+  --input-border: light-dark(#8c7f73, #8a7d71);
+  --input-border-hivis: light-dark(#6a5e55, #a89b8f);
+  --scrim: light-dark(rgb(43 35 32 / 0.48), rgb(0 0 0 / 0.64));
+
+  /* ── Brand ─────────────────────────────────────────────────────────────────────────── */
+  --brand: light-dark(#1f3a34, #a8cfc3);
+  --on-brand: light-dark(#ffffff, #13201c);
+  --brand-tint: light-dark(#dfe8e4, #1d2d29);
+  /* The logo tile keeps its spruce in dark mode, lifted just enough to separate from the page. */
+  --logo-tile: light-dark(#1f3a34, #2a4c44);
+  --logo-roof: #f7f2ea;
+  --logo-course: #8fa79f;
+  --logo-hearth: #e0a526;
+
+  /* ── Roles ─────────────────────────────────────────────────────────────────────────── */
+  --tenant: light-dark(#a8401f, #f08a6c);
+  --tenant-text: light-dark(#a8401f, #f08a6c);
+  --tenant-text-hivis: light-dark(#7f2f14, #f4b09e);
+  --tenant-tint: light-dark(#f8e4db, #3b2419);
+  --on-tenant: light-dark(#ffffff, #1b1714);
+
+  --landlord: light-dark(#2f6a4f, #7fc4a0);
+  --landlord-text: light-dark(#2f6a4f, #7fc4a0);
+  --landlord-text-hivis: light-dark(#1f4f39, #9fd8ba);
+  --landlord-tint: light-dark(#ddede3, #1e3328);
+  --on-landlord: light-dark(#ffffff, #1b1714);
+
+  /* Ochre is a fill with an ink label. On light backgrounds the text colour is the darker ochre. */
+  --trade: light-dark(#e0a526, #f2c14e);
+  --trade-text: light-dark(#8a5a00, #f2c14e);
+  --trade-text-hivis: light-dark(#664300, #f2c14e);
+  --trade-tint: light-dark(#fbefcf, #3a2e12);
+  --on-trade: light-dark(#2b2320, #1b1714);
+
+  /* ── Feedback ──────────────────────────────────────────────────────────────────────── */
+  --danger: light-dark(#b3261e, #f2877e);
+  --danger-hivis: light-dark(#8f1e17, #ff9c92);
+  --on-danger: light-dark(#ffffff, #1b1714);
+  --critical: light-dark(#b3261e, #f2877e);
+  --critical-hivis: light-dark(#8f1e17, #ff9c92);
+  --critical-tint: light-dark(#fbe4e1, #3d2220);
+  --positive: light-dark(#1e6650, #8fd1b5);
+  --positive-hivis: light-dark(#154d3c, #8fd1b5);
+  --positive-tint: light-dark(#dcefe6, #1f3129);
+  --caution: light-dark(#7a3668, #e3a6cf);
+  --caution-hivis: light-dark(#5e2750, #e3a6cf);
+  --caution-tint: light-dark(#f5e4ee, #3a2433);
+  --info: light-dark(#2f5a7a, #9cc3e3);
+  --info-hivis: light-dark(#214460, #9cc3e3);
+  --info-tint: light-dark(#e1ebf3, #22303b);
+  /* Score accent: always sits next to the number it decorates, never stands alone. */
+  --score: light-dark(#c77700, #e9a23b);
+
+  /* Generated avatars: warm, quiet grounds for ink initials (ink on each is 10:1 or more). */
+  --avatar-1: light-dark(#f3dccd, #4a3024);
+  --avatar-2: light-dark(#d9e8dc, #28402f);
+  --avatar-3: light-dark(#f6e7c1, #463a17);
+  --avatar-4: light-dark(#dfe3ef, #2f3548);
+  --avatar-5: light-dark(#eddcea, #43303f);
+  --avatar-6: light-dark(#e6ddd2, #3e352d);
+
+  /* ── Type ──────────────────────────────────────────────────────────────────────────── */
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-ui: 'Figtree Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-hivis: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+
+  /* rem plus a little vw, so text still grows with browser zoom (WCAG 1.4.4). */
+  --fs-display-xl: clamp(2.25rem, 1.85rem + 1.4vw, 3rem);
+  --fs-display-l: clamp(1.75rem, 1.55rem + 0.8vw, 2.25rem);
+  --fs-display-m: clamp(1.375rem, 1.3rem + 0.35vw, 1.625rem);
+  --fs-title: 1.1875rem;
+  --fs-body-l: 1.125rem;
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-caption: 0.8125rem;
+
+  /* ── Shape, space and elevation ────────────────────────────────────────────────────── */
+  --radius-control: 0.75rem;
+  --radius-card: 1.125rem;
+  --radius-sheet: 1.5rem;
+
+  /* Target heights. 44px keeps every control far above the 24px WCAG 2.2 minimum. */
+  --control-h-sm: 2.25rem;
+  --control-h: 2.75rem;
+  --control-h-lg: 3.25rem;
+  /* Gap between neighbouring touch targets. */
+  --gap-touch: 0.5rem;
+  --gutter: 1rem;
+
+  /* Soft and warm: brown-tinted, low opacity, wide blur. Dark mode leans on surface lightness. */
+  --shadow-soft:
+    0 1px 2px light-dark(rgb(43 35 32 / 0.05), rgb(0 0 0 / 0.3)),
+    0 1px 3px light-dark(rgb(43 35 32 / 0.04), rgb(0 0 0 / 0.2));
+  --shadow-raised:
+    0 1px 2px light-dark(rgb(43 35 32 / 0.05), rgb(0 0 0 / 0.3)),
+    0 8px 24px -8px light-dark(rgb(76 52 32 / 0.16), rgb(0 0 0 / 0.5));
+  --shadow-overlay:
+    0 2px 6px light-dark(rgb(43 35 32 / 0.06), rgb(0 0 0 / 0.3)),
+    0 24px 48px -12px light-dark(rgb(76 52 32 / 0.26), rgb(0 0 0 / 0.6));
+
+  /* ── Motion ────────────────────────────────────────────────────────────────────────── */
+  --duration-quick: 200ms;
+  --duration-base: 250ms;
+  --duration-slow: 300ms;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-soft: cubic-bezier(0.55, 0, 0.75, 0.25);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ── Layers ────────────────────────────────────────────────────────────────────────── */
+  --z-nav: 30;
+  --z-overlay: 40;
+  --z-toast: 50;
+  --z-tooltip: 60;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-quick: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+
+/* ── Accent mapping ────────────────────────────────────────────────────────────────────── */
+
+/* Custom properties are resolved where they are declared, so every scope that changes an input
+   re-declares the tokens derived from it. */
+:root,
+[data-role],
+[data-role-accent] {
+  /* What hover and pressed fills mix toward: away from the label, so contrast only rises. */
+  --accent-shade: var(--ink);
+  --accent: var(--brand);
+  --accent-text: var(--brand);
+  --accent-tint: var(--brand-tint);
+  --on-accent: var(--on-brand);
+  /* Thin state graphics that must reach 3:1 on the surface: see STATE GRAPHICS above. */
+  --accent-strong: var(--brand);
+}
+
+[data-role='tenant'],
+[data-role-accent='tenant'] {
+  --accent: var(--tenant);
+  --accent-text: var(--tenant-text);
+  --accent-tint: var(--tenant-tint);
+  --on-accent: var(--on-tenant);
+  --accent-strong: var(--tenant);
+}
+
+[data-role='landlord'],
+[data-role-accent='landlord'] {
+  --accent: var(--landlord);
+  --accent-text: var(--landlord-text);
+  --accent-tint: var(--landlord-tint);
+  --on-accent: var(--on-landlord);
+  --accent-strong: var(--landlord);
+}
+
+[data-role='trade'],
+[data-role-accent='trade'] {
+  --accent: var(--trade);
+  --accent-text: var(--trade-text);
+  --accent-tint: var(--trade-tint);
+  --on-accent: var(--on-trade);
+  /* Ochre stays the fill; edges, dots and underlines use the dark ochre so they reach 3:1. */
+  --accent-strong: var(--trade-text);
+  /* The ochre label is dark in both themes, so hover lightens it. */
+  --accent-shade: light-dark(#ffffff, #f5eee6);
+}
+
+:root,
+[data-role],
+[data-role-accent] {
+  --accent-hover: color-mix(in oklab, var(--accent) 86%, var(--accent-shade));
+  --accent-press: color-mix(in oklab, var(--accent) 76%, var(--accent-shade));
+  --ring: var(--accent-text);
+}
+
+/* ── Trade portal: Hi-Vis rules ────────────────────────────────────────────────────────── */
+
+[data-role='trade'] {
+  --font-ui: var(--font-hivis);
+  --muted: var(--muted-hivis);
+  --input-border: var(--input-border-hivis);
+  --trade-text: var(--trade-text-hivis);
+  --tenant-text: var(--tenant-text-hivis);
+  --landlord-text: var(--landlord-text-hivis);
+  --danger: var(--danger-hivis);
+  --critical: var(--critical-hivis);
+  --positive: var(--positive-hivis);
+  --caution: var(--caution-hivis);
+  --info: var(--info-hivis);
+
+  --fs-body: 1.125rem;
+  --fs-small: 1rem;
+  --fs-caption: 0.9375rem;
+  /* 44, 56 and 64px: every primary action in the trade portal is 56px or taller. */
+  --control-h-sm: 2.75rem;
+  --control-h: 3.5rem;
+  --control-h-lg: 4rem;
+  --gap-touch: 0.75rem;
+}
+
+/* Landlords can choose 18px body text (SPEC §9). */
+[data-text-size='comfortable'] {
+  --fs-body: 1.125rem;
+  --fs-small: 1rem;
+  --fs-caption: 0.875rem;
+}

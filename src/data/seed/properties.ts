@@ -1,0 +1,255 @@
+// Twelve homes, two in each neighbourhood. Real Aberdeen streets and postcode districts; the
+// house and flat numbers are made up. Rents sit around the city's average of about £878 a month.
+
+import type { Property } from '@/domain/types'
+import { image } from './placeholders'
+import { on } from './time'
+
+type PropertySeed = Omit<Property, 'city' | 'jurisdiction' | 'postcodeDistrict'>
+
+function home(seed: PropertySeed): Property {
+  return {
+    ...seed,
+    city: 'Aberdeen',
+    jurisdiction: 'scotland',
+    postcodeDistrict: seed.postcode.split(' ')[0] ?? seed.postcode,
+  }
+}
+
+export const PROPERTIES: Property[] = [
+  // Rosemount
+  home({
+    id: 'property_esslemont',
+    addressLine: 'Top Floor Right, 14 Esslemont Avenue',
+    neighbourhood: 'Rosemount',
+    postcode: 'AB25 1SR',
+    bedrooms: 2,
+    type: 'tenement_flat',
+    epcBand: 'C',
+    depositScheme: 'safedeposits_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_graham',
+    agentIds: ['person_aileen'],
+    photo: image(
+      'home',
+      'esslemont-tenement',
+      'Grey granite tenement with bay windows on a tree-lined street',
+    ),
+    createdAt: on('2024-02-06', '20:30'),
+  }),
+  home({
+    id: 'property_rosemount_place',
+    addressLine: 'Second Floor, 211 Rosemount Place',
+    neighbourhood: 'Rosemount',
+    postcode: 'AB25 2XS',
+    bedrooms: 1,
+    type: 'tenement_flat',
+    epcBand: 'D',
+    depositScheme: 'letting_protection_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_derek',
+    agentIds: [],
+    photo: image('home', 'rosemount-place-tenement', 'Granite tenement above a row of small shops'),
+    createdAt: on('2024-01-20', '14:50'),
+  }),
+
+  // West End
+  home({
+    id: 'property_union_grove',
+    addressLine: 'Ground Floor Flat, 47 Union Grove',
+    neighbourhood: 'West End',
+    postcode: 'AB10 6SB',
+    bedrooms: 2,
+    type: 'tenement_flat',
+    epcBand: 'C',
+    depositScheme: 'safedeposits_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_graham',
+    agentIds: ['person_aileen'],
+    photo: image(
+      'home',
+      'union-grove-flat',
+      'Granite terrace with a painted front door and small front garden',
+    ),
+    createdAt: on('2024-02-06', '20:41'),
+  }),
+  home({
+    id: 'property_queens_road',
+    addressLine: "Flat 1, 32 Queen's Road",
+    neighbourhood: 'West End',
+    postcode: 'AB15 4ZN',
+    bedrooms: 3,
+    type: 'flat',
+    epcBand: 'D',
+    depositScheme: 'safedeposits_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_graham',
+    agentIds: ['person_aileen'],
+    photo: image(
+      'home',
+      'queens-road-villa',
+      'Large granite villa split into flats, with bay windows and a gravel drive',
+    ),
+    createdAt: on('2024-02-06', '20:52'),
+  }),
+
+  // Ferryhill
+  home({
+    id: 'property_fonthill',
+    addressLine: 'Flat C, 9 Fonthill Road',
+    neighbourhood: 'Ferryhill',
+    postcode: 'AB11 6UD',
+    bedrooms: 2,
+    type: 'tenement_flat',
+    epcBand: 'C',
+    depositScheme: 'safedeposits_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_graham',
+    agentIds: ['person_aileen'],
+    photo: image(
+      'home',
+      'fonthill-tenement',
+      'Light-filled living room with a bay window and wooden floor',
+    ),
+    createdAt: on('2024-02-06', '21:03'),
+  }),
+  home({
+    id: 'property_polmuir',
+    addressLine: 'Top Floor Flat, 26 Polmuir Road',
+    neighbourhood: 'Ferryhill',
+    postcode: 'AB11 7SY',
+    bedrooms: 1,
+    type: 'flat',
+    epcBand: 'C',
+    depositScheme: 'mydeposits_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_hannah',
+    agentIds: [],
+    photo: image(
+      'home',
+      'polmuir-flat',
+      'Attic flat with a dormer window looking over the Duthie Park trees',
+    ),
+    createdAt: on('2025-12-01', '20:15'),
+  }),
+
+  // Old Aberdeen
+  home({
+    id: 'property_spital',
+    addressLine: 'First Floor Left, 63 Spital',
+    neighbourhood: 'Old Aberdeen',
+    postcode: 'AB24 3HX',
+    bedrooms: 2,
+    type: 'tenement_flat',
+    epcBand: 'D',
+    depositScheme: 'letting_protection_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_irene',
+    agentIds: [],
+    photo: image(
+      'home',
+      'spital-tenement',
+      'Granite tenement on a cobbled hill with a shared green door',
+    ),
+    createdAt: on('2024-01-15', '11:20'),
+  }),
+  home({
+    id: 'property_king_street',
+    addressLine: 'Flat 4, 118 King Street',
+    neighbourhood: 'Old Aberdeen',
+    postcode: 'AB24 5BA',
+    bedrooms: 2,
+    type: 'tenement_flat',
+    epcBand: 'C',
+    depositScheme: 'safedeposits_scotland',
+    hasGasSupply: false,
+    landlordId: 'person_graham',
+    agentIds: ['person_aileen'],
+    photo: image(
+      'home',
+      'king-street-tenement',
+      'Tall granite tenement with sash windows and a tidy stair',
+    ),
+    createdAt: on('2024-02-06', '21:10'),
+  }),
+
+  // Torry
+  home({
+    id: 'property_victoria_road',
+    addressLine: 'First Floor Right, 88 Victoria Road',
+    neighbourhood: 'Torry',
+    postcode: 'AB11 9DS',
+    bedrooms: 2,
+    type: 'tenement_flat',
+    epcBand: 'E',
+    depositScheme: 'letting_protection_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_derek',
+    agentIds: [],
+    photo: image(
+      'home',
+      'victoria-road-tenement',
+      'Weathered granite tenement with single-glazed windows',
+    ),
+    createdAt: on('2024-01-20', '15:02'),
+  }),
+  home({
+    id: 'property_walker_road',
+    addressLine: 'Second Floor Left, 12 Walker Road',
+    neighbourhood: 'Torry',
+    postcode: 'AB11 8BU',
+    bedrooms: 2,
+    type: 'tenement_flat',
+    epcBand: 'D',
+    depositScheme: 'letting_protection_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_irene',
+    agentIds: [],
+    photo: image(
+      'home',
+      'walker-road-tenement',
+      'Granite tenement with a view down to the harbour',
+    ),
+    createdAt: on('2024-01-15', '11:34'),
+  }),
+
+  // Bridge of Don
+  home({
+    id: 'property_jesmond',
+    addressLine: '31 Jesmond Drive',
+    neighbourhood: 'Bridge of Don',
+    postcode: 'AB22 8UR',
+    bedrooms: 3,
+    type: 'semi_detached_house',
+    epcBand: 'C',
+    depositScheme: 'safedeposits_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_graham',
+    agentIds: ['person_aileen'],
+    photo: image(
+      'home',
+      'jesmond-semi',
+      'Harled semi-detached house with a driveway and back garden',
+    ),
+    createdAt: on('2024-02-06', '21:18'),
+  }),
+  home({
+    id: 'property_scotstown',
+    addressLine: '7 Scotstown Road',
+    neighbourhood: 'Bridge of Don',
+    postcode: 'AB22 8HH',
+    bedrooms: 3,
+    type: 'terraced_house',
+    epcBand: 'C',
+    depositScheme: 'letting_protection_scotland',
+    hasGasSupply: true,
+    landlordId: 'person_irene',
+    agentIds: [],
+    photo: image(
+      'home',
+      'scotstown-terrace',
+      'End-terrace house with a small front garden and a red door',
+    ),
+    createdAt: on('2024-01-15', '11:48'),
+  }),
+]

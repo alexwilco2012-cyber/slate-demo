@@ -1,0 +1,354 @@
+/*
+ * Component styles that are clearer as CSS than as utility classes: layouts that change shape
+ * between phone and desktop, and multi-state animations driven by Base UI's data attributes.
+ */
+
+@layer components {
+  /* ── Dialog and sheet ──────────────────────────────────────────────────────────────── */
+
+  .slate-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    min-height: 100dvh;
+    background: var(--scrim);
+    transition: opacity var(--duration-base) var(--ease-out-soft);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+    }
+  }
+
+  /* Phones: every dialog is a bottom sheet, within thumb reach. */
+  .slate-dialog {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-overlay);
+    display: flex;
+    flex-direction: column;
+    max-height: min(92dvh, 100% - 1.5rem);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+    box-shadow: var(--shadow-overlay);
+    outline: none;
+    transition:
+      translate var(--duration-slow) var(--ease-out-soft),
+      scale var(--duration-base) var(--ease-out-soft),
+      opacity var(--duration-base) var(--ease-out-soft);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      translate: 0 100%;
+    }
+    &[data-ending-style] {
+      transition-duration: var(--duration-quick);
+      transition-timing-function: var(--ease-in-soft);
+    }
+  }
+
+  .slate-dialog-handle {
+    align-self: center;
+    width: 2.5rem;
+    height: 0.3125rem;
+    margin-top: 0.625rem;
+    border-radius: 999px;
+    background: var(--line);
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 40rem) {
+    .slate-dialog[data-variant='dialog'] {
+      inset: 50% auto auto 50%;
+      translate: -50% -50%;
+      width: min(34rem, 100vw - 2rem);
+      max-height: min(85dvh, 48rem);
+      border-radius: var(--radius-sheet);
+
+      &[data-size='sm'] {
+        width: min(26rem, 100vw - 2rem);
+      }
+      &[data-size='lg'] {
+        width: min(44rem, 100vw - 2rem);
+      }
+      &[data-starting-style],
+      &[data-ending-style] {
+        translate: -50% -48%;
+        scale: 0.97;
+        opacity: 0;
+      }
+      .slate-dialog-handle {
+        display: none;
+      }
+    }
+  }
+
+  /* Landlord detail drawer: slides in from the right beside the list it belongs to. */
+  @media (min-width: 48rem) {
+    .slate-dialog[data-variant='sheet'] {
+      inset: 0 0 0 auto;
+      width: min(30rem, 100vw);
+      max-height: none;
+      height: 100dvh;
+      border-radius: var(--radius-sheet) 0 0 var(--radius-sheet);
+
+      &[data-size='lg'] {
+        width: min(40rem, 100vw);
+      }
+      &[data-starting-style],
+      &[data-ending-style] {
+        translate: 100% 0;
+      }
+      .slate-dialog-handle {
+        display: none;
+      }
+    }
+  }
+
+  /* ── Bottom bar labels ─────────────────────────────────────────────────────────────── */
+
+  /*
+   * Five cells share a phone's width, so a long word ("Documents", or "Messages" in the trade
+   * portal's bigger type) can be wider than its cell. The label shrinks with the cell down to a
+   * floor (11px, 12px in trade), then wraps to a second line, and never ends in "…".
+   */
+  .slate-nav-cell {
+    container-type: inline-size;
+  }
+
+  .slate-nav-label {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    max-width: 100%;
+    font-size: clamp(0.6875rem, 17cqi, var(--fs-caption));
+    line-height: 1.15;
+    text-align: center;
+    text-wrap: balance;
+    hyphens: auto;
+    overflow-wrap: anywhere;
+
+    [data-role='trade'] & {
+      font-size: clamp(0.75rem, 17cqi, var(--fs-caption));
+    }
+  }
+
+  /* ── Toasts ────────────────────────────────────────────────────────────────────────── */
+
+  /*
+   * Above the phone bottom bar; bottom centre on wider screens. Not bottom right: that is where
+   * the landlord detail drawer keeps its main action, and an error toast stays until dismissed.
+   */
+  .slate-toast-viewport {
+    position: fixed;
+    z-index: var(--z-toast);
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    margin-inline: auto;
+    max-width: 26rem;
+  }
+  @media (min-width: 64rem) {
+    .slate-toast-viewport {
+      bottom: 1.5rem;
+      max-width: 24rem;
+    }
+  }
+
+  .slate-toast {
+    --gap: 0.75rem;
+    --peek: 0.625rem;
+    --scale: calc(max(0, 1 - (var(--toast-index) * 0.06)));
+    --shrink: calc(1 - var(--scale));
+    --height: var(--toast-frontmost-height, var(--toast-height));
+    --offset-y: calc(
+      var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) +
+        var(--toast-swipe-movement-y)
+    );
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: calc(1000 - var(--toast-index));
+    height: var(--height);
+    transform-origin: bottom center;
+    transform: translateX(var(--toast-swipe-movement-x))
+      translateY(
+        calc(
+          var(--toast-swipe-movement-y) - (var(--toast-index) * var(--peek)) -
+            (var(--shrink) * var(--height))
+        )
+      )
+      scale(var(--scale));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-overlay);
+    user-select: none;
+    transition:
+      transform var(--duration-slow) var(--ease-out-soft),
+      opacity var(--duration-slow),
+      height var(--duration-quick);
+
+    /* Keeps hover alive in the gaps between expanded toasts. */
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: calc(var(--gap) + 1px);
+    }
+
+    &[data-expanded] {
+      height: var(--toast-height);
+      transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+    }
+    &[data-starting-style] {
+      transform: translateY(120%);
+    }
+    &[data-limited] {
+      opacity: 0;
+    }
+    &[data-ending-style] {
+      opacity: 0;
+      &:not([data-limited]):not([data-swipe-direction]) {
+        transform: translateY(120%);
+      }
+      &[data-swipe-direction='down'] {
+        transform: translateY(calc(var(--toast-swipe-movement-y) + 120%));
+      }
+      &[data-swipe-direction='right'] {
+        transform: translateX(calc(var(--toast-swipe-movement-x) + 120%))
+          translateY(var(--offset-y));
+      }
+    }
+  }
+
+  .slate-toast-content {
+    overflow: hidden;
+    transition: opacity var(--duration-base);
+
+    &[data-behind] {
+      opacity: 0;
+    }
+    &[data-expanded] {
+      opacity: 1;
+    }
+  }
+
+  /* ── Skeleton ──────────────────────────────────────────────────────────────────────── */
+
+  .slate-skeleton {
+    background: linear-gradient(
+        100deg,
+        transparent 30%,
+        color-mix(in oklab, var(--surface) 70%, transparent) 50%,
+        transparent 70%
+      )
+      var(--surface-2);
+    background-size: 220% 100%;
+    animation: slate-shimmer 1.8s ease-in-out infinite;
+  }
+
+  @keyframes slate-shimmer {
+    from {
+      background-position: 120% 0;
+    }
+    to {
+      background-position: -120% 0;
+    }
+  }
+
+  /* ── Plain tables that reflow ──────────────────────────────────────────────────────── */
+
+  /*
+   * Money and compliance stay plain tables (SPEC §9). Below 640px each row becomes a stacked
+   * card and every cell shows its column name from data-label, so nothing scrolls sideways at
+   * 320px or 200% zoom.
+   */
+  .slate-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-variant-numeric: tabular-nums lining-nums;
+
+    & caption {
+      text-align: left;
+    }
+    & th {
+      text-align: left;
+      font-weight: 600;
+      font-size: var(--fs-small);
+      color: var(--muted);
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid var(--input-border);
+      white-space: nowrap;
+    }
+    & td {
+      padding: 0.875rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+    & tbody tr:last-child td {
+      border-bottom: none;
+    }
+    & th:first-child,
+    & td:first-child {
+      padding-left: 0;
+    }
+    & th:last-child,
+    & td:last-child {
+      padding-right: 0;
+    }
+    & [data-align='end'] {
+      text-align: right;
+    }
+  }
+
+  @media (max-width: 39.99rem) {
+    .slate-table {
+      & thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+      & tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.375rem 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--line);
+      }
+      & tbody tr:last-child {
+        border-bottom: none;
+      }
+      & td {
+        display: block;
+        padding: 0;
+        border: none;
+      }
+      & td[data-label]:not([data-primary])::before {
+        content: attr(data-label);
+        display: block;
+        font-size: var(--fs-caption);
+        color: var(--muted);
+      }
+      & td[data-primary] {
+        grid-column: 1 / -1;
+      }
+      & td[data-full] {
+        grid-column: 1 / -1;
+      }
+      & [data-align='end'] {
+        text-align: left;
+      }
+    }
+  }
+}

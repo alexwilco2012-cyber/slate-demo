@@ -1,0 +1,55 @@
+/*
+ * Public site only. Colours for the deep spruce bands and the drawn Aberdeen tenements, written
+ * with light-dark() like src/styles/tokens.css so they follow the theme.
+ *
+ *   on-band #F7F2EA on band #1F3A34        11.3   | on-band #F5EEE6 on band #172622        14.4
+ *   on-band-muted #C3D2CC on band           7.8   | on-band-muted #AEBFB8 on band           8.2
+ */
+
+.public-site {
+  --band: light-dark(#1f3a34, #172622);
+  --band-raised: light-dark(#27463f, #1e312c);
+  --on-band: light-dark(#f7f2ea, #f5eee6);
+  --on-band-muted: light-dark(#c3d2cc, #aebfb8);
+  --band-line: light-dark(rgb(247 242 234 / 0.18), rgb(245 238 230 / 0.14));
+
+  /* The drawn tenements: granite, slate roofs, and windows lit from inside. */
+  --illo-granite: light-dark(#e3dccf, #2d2723);
+  --illo-granite-shade: light-dark(#d5ccbd, #26211d);
+  --illo-roof: light-dark(#6f7d78, #1c2624);
+  --illo-roof-edge: light-dark(#5a6763, #151d1b);
+  --illo-line: light-dark(#bcb09f, #463d36);
+  --illo-glass: light-dark(#c9d3d0, #1a1614);
+  --illo-lit: light-dark(#f2c14e, #d99a22);
+  --illo-door: light-dark(#1f3a34, #2a4c44);
+}
+
+/* Inside a band, the focus ring and links need the light ink to show against spruce. */
+.public-band {
+  --ring: var(--on-band);
+  background: var(--band);
+  color: var(--on-band);
+}
+
+/* FAQ answers open smoothly where the browser can animate to the content's height. */
+.public-faq {
+  interpolate-size: allow-keywords;
+}
+.public-faq details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size var(--duration-base) var(--ease-out-soft),
+    content-visibility var(--duration-base) allow-discrete;
+}
+.public-faq details[open]::details-content {
+  block-size: auto;
+}
+.public-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Anchored sections stop below the sticky header. */
+.public-site [id] {
+  scroll-margin-top: 5.5rem;
+}

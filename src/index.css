@@ -1,0 +1,231 @@
+@import 'tailwindcss';
+@import './styles/tokens.css';
+@import './styles/components.css';
+
+/* Fraunces with every axis, so display type can use the SOFT axis that gives Hearth its warmth. */
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/figtree';
+/* Trade portal UI font. Browsers only download a face once text actually uses it. */
+@import '@fontsource/atkinson-hyperlegible-next/latin-400.css';
+@import '@fontsource/atkinson-hyperlegible-next/latin-600.css';
+@import '@fontsource/atkinson-hyperlegible-next/latin-700.css';
+
+/* dark: follows the system unless a data-theme is set, and respects nested overrides. */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']) *):not(
+        :where([data-theme='light'], [data-theme='light'] *)
+      ) {
+      @slot;
+    }
+  }
+}
+/* trade: Hi-Vis adjustments inside the trade portal. */
+@custom-variant trade (&:where([data-role='trade'], [data-role='trade'] *));
+
+@theme {
+  /* Only semantic colours: raw palettes are switched off so screens cannot drift from the tokens. */
+  --color-*: initial;
+  --breakpoint-xs: 22.5rem;
+}
+
+/* Utilities read the runtime tokens, so data-theme and data-role changes flow straight through.
+   Where a theme name matches a token name, the unlayered token in tokens.css supplies the value. */
+@theme inline {
+  --font-sans: var(--font-ui);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-input-border: var(--input-border);
+  --color-scrim: var(--scrim);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-brand-tint: var(--brand-tint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-press: var(--accent-press);
+  --color-accent-text: var(--accent-text);
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
+  --color-ring: var(--ring);
+  --color-tenant: var(--tenant);
+  --color-landlord: var(--landlord);
+  --color-trade: var(--trade);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+  --color-critical: var(--critical);
+  --color-critical-tint: var(--critical-tint);
+  --color-positive: var(--positive);
+  --color-positive-tint: var(--positive-tint);
+  --color-caution: var(--caution);
+  --color-caution-tint: var(--caution-tint);
+  --color-info: var(--info);
+  --color-info-tint: var(--info-tint);
+  --color-score: var(--score);
+
+  --text-display-xl: var(--fs-display-xl);
+  --text-display-xl--line-height: 1.05;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-l: var(--fs-display-l);
+  --text-display-l--line-height: 1.1;
+  --text-display-l--letter-spacing: -0.015em;
+  --text-display-m: var(--fs-display-m);
+  --text-display-m--line-height: 1.2;
+  --text-display-m--letter-spacing: -0.01em;
+  --text-title: var(--fs-title);
+  --text-title--line-height: 1.3;
+  --text-body-l: var(--fs-body-l);
+  --text-body-l--line-height: 1.55;
+  --text-body: var(--fs-body);
+  --text-body--line-height: 1.5;
+  --text-small: var(--fs-small);
+  --text-small--line-height: 1.45;
+  --text-caption: var(--fs-caption);
+  --text-caption--line-height: 1.4;
+
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+  --radius-sheet: var(--radius-sheet);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-raised: var(--shadow-raised);
+  --shadow-overlay: var(--shadow-overlay);
+
+  --ease-out-soft: var(--ease-out-soft);
+  --ease-in-soft: var(--ease-in-soft);
+  --ease-standard: var(--ease-standard);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /*
+   * In a portal (the shell puts data-role on <html>), keyboard focus stays clear of the sticky
+   * header and the phone's bottom bar (WCAG 2.4.11): the browser scrolls a focused control this far
+   * inside the edges. The trade portal sets larger values for its action dock in trade.css.
+   */
+  html:where([data-role]) {
+    scroll-padding-top: 5.5rem;
+    scroll-padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 64rem) {
+    html:where([data-role]) {
+      scroll-padding-bottom: 1rem;
+    }
+  }
+
+  body,
+  [data-role] {
+    font-family: var(--font-ui);
+    font-size: var(--fs-body);
+    line-height: 1.5;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+  }
+
+  [data-text-size] {
+    font-size: var(--fs-body);
+  }
+
+  /* A theme boundary repaints its own background and text so a forced-dark panel reads correctly. */
+  [data-theme] {
+    background-color: var(--bg);
+    color: var(--ink);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--accent-tint);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  button,
+  [role='button'],
+  [role='radio'],
+  [role='checkbox'],
+  [role='switch'],
+  [role='tab'],
+  summary,
+  label[for] {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  :disabled,
+  [data-disabled] {
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  /* SOFT rounds Fraunces' terminals: warm, not bookish. */
+  font-variation-settings:
+    'SOFT' 60,
+    'WONK' 0;
+}
+
+@utility figures {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+@utility sr-only-focusable {
+  &:not(:focus-visible) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

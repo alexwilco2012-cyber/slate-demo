@@ -1,0 +1,15 @@
+/*
+ * Keyboard focus stays clear of the sticky header, the phone's bottom bar and the action dock
+ * (WCAG 2.4.11): the browser scrolls a focused control this far inside the edges. The shell puts
+ * data-role on <html> while a portal is open.
+ */
+html[data-role='trade'] {
+  scroll-padding-top: 6rem;
+  scroll-padding-bottom: calc(11rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 64rem) {
+  html[data-role='trade'] {
+    scroll-padding-bottom: 8rem;
+  }
+}

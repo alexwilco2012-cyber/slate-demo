@@ -1,0 +1,47 @@
+#!/bin/sh
+# Slate pre-commit confidentiality guard.
+#
+# The repo is public and the demo must only ever contain fictional people.
+# Fixture conventions: phone numbers use Ofcom's drama range (07700 900000-
+# 900999), emails use example.com / example.co.uk / .test, and nothing may
+# match a term in the gitignored .private/blocked-terms.txt (one per line,
+# e.g. the owner's own addresses), which stays off GitHub on purpose.
+#
+# Enabled by:  git config core.hooksPath scripts/hooks
+
+fail=0
+note() { printf '\n  \033[31m%s\033[0m\n' "$1"; fail=1; }
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+blocked=$(printf '%s\n' "$staged" | grep -Ei '\.(docx|doc|msg|eml|pdf)$|^\.private/' || true)
+if [ -n "$blocked" ]; then
+  note "Blocked files staged (documents, emails or private notes):"
+  printf '%s\n' "$blocked" | sed 's/^/      /'
+fi
+
+for f in $staged; do
+  [ -f "$f" ] || continue
+  case "$f" in *.png|*.jpg|*.jpeg|*.gif|*.ico|*.woff*|*.webp|scripts/hooks/*|package-lock.json) continue;; esac
+  body=$(git show ":$f" 2>/dev/null)
+  if [ -s .private/blocked-terms.txt ] && printf '%s' "$body" | grep -qiF -f .private/blocked-terms.txt; then
+    note "Blocked private term (see .private/blocked-terms.txt) in: $f"
+  fi
+  phones=$(printf '%s' "$body" | grep -noE '(\+44 ?7|07)[0-9]{3} ?[0-9]{3} ?[0-9]{3}' | grep -vE '7700 ?900' || true)
+  if [ -n "$phones" ]; then
+    note "Mobile number outside the 07700 900xxx drama range in: $f"
+    printf '%s\n' "$phones" | head -3 | sed 's/^/      /'
+  fi
+  emails=$(printf '%s' "$body" | grep -noiE '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}' | grep -viE '@(example\.(com|co\.uk|org)|[a-z0-9.-]+\.test)|noreply@anthropic\.com' || true)
+  if [ -n "$emails" ]; then
+    note "Email address outside example.com / .test in: $f"
+    printf '%s\n' "$emails" | head -3 | sed 's/^/      /'
+  fi
+done
+
+if [ "$fail" -ne 0 ]; then
+  printf '\n  \033[31mCommit refused.\033[0m Use obviously-fictional fixtures (see header).\n\n'
+  exit 1
+fi
+exit 0

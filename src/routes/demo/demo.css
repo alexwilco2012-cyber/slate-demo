@@ -1,0 +1,91 @@
+/* The demo page's few moving parts. Colours come from the Hearth tokens and the role accent of
+   the element (data-role-accent), so each phone glows in its own portal's colour. */
+
+/* The phone's body: near-black in both themes, with a faint edge so it holds its shape on the
+   dark page. */
+.phone-bezel {
+  background: light-dark(#2b2320, #0f0d0b);
+  box-shadow:
+    inset 0 0 0 1px light-dark(transparent, rgb(255 255 255 / 0.09)),
+    var(--shadow-overlay);
+}
+
+/* Whose turn it is: a ring in the role colour with a slow, soft glow around it. */
+.phone-turn {
+  box-shadow:
+    0 0 0 3px var(--accent-strong),
+    0 0 0 10px color-mix(in oklab, var(--accent) 22%, transparent),
+    var(--shadow-overlay);
+  animation: demo-turn-glow 2.6s var(--ease-standard) infinite;
+}
+
+@keyframes demo-turn-glow {
+  50% {
+    box-shadow:
+      0 0 0 3px var(--accent-strong),
+      0 0 0 16px color-mix(in oklab, var(--accent) 8%, transparent),
+      var(--shadow-overlay);
+  }
+}
+
+/* The step being played: its mark and its bar breathe gently. */
+.story-current {
+  animation: demo-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes demo-breathe {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* "Live": a dot with a ripple, to say the phones are connected. */
+.live-dot {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--positive);
+}
+
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--positive);
+  animation: demo-ripple 2s var(--ease-out-soft) infinite;
+}
+
+@keyframes demo-ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+/* The clock when it jumps: a brief wash of colour behind the time. */
+.clock-jumped {
+  animation: demo-clock 1.6s var(--ease-out-soft);
+}
+
+@keyframes demo-clock {
+  from {
+    background-color: var(--brand-tint);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--brand) 18%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-turn,
+  .story-current,
+  .live-dot::after,
+  .clock-jumped {
+    animation: none;
+  }
+}
