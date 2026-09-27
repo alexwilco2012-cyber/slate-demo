@@ -1,14 +1,35 @@
 import { Link } from 'react-router'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { ROLES, ROLE_LABELS } from '@/domain/types'
 import { Avatar } from '@/components/ui/avatar'
 import { cn } from '@/components/ui/cn'
-import { sessionHref } from '@/session'
+import { sessionHref, START_PATH } from '@/session'
 import { ROLE_STORIES } from '../content/roles'
 
 /** A link that opens a portal signed in as a demo persona, e.g. "Try as Sarah". */
 export function personaHref(role: keyof typeof ROLE_STORIES) {
   const { personId } = ROLE_STORIES[role].persona
   return sessionHref(`/${role}`, { personId, activeRole: role })
+}
+
+/** "More people to try": the persona picker, with everyone in the demo. */
+export function MoreToTry({ className }: { className?: string }) {
+  return (
+    <Link
+      to={START_PATH}
+      className={cn(
+        'group inline-flex min-h-11 items-center gap-1.5 self-start rounded-control text-small font-semibold text-ink underline decoration-input-border decoration-[1.5px] underline-offset-[0.3em] transition-[text-decoration-color] duration-(--duration-quick) hover:decoration-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring lg:self-auto',
+        className,
+      )}
+    >
+      More people to try
+      <ArrowRightIcon
+        weight="bold"
+        aria-hidden
+        className="size-4 transition-transform duration-(--duration-quick) group-hover:translate-x-0.5"
+      />
+    </Link>
+  )
 }
 
 /** "Sarah · Tenant", "Graham · Landlord", "Kev · Trade": one tap into each portal. */

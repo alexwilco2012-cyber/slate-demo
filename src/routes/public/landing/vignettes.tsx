@@ -17,17 +17,9 @@ import { RadioGroup } from '@/components/ui/radio-group'
 import { ComplianceCalendarRow, ComplianceTable } from '@/components/slate/compliance-calendar'
 import { formatScore } from '@/components/slate/format'
 import { MessageBubble } from '@/components/slate/message-thread'
-import { PassportCard } from '@/components/slate/passport-card'
 import { ScoreBar } from '@/components/slate/score-bar'
 import { scoreWords } from '@/components/slate/score-words'
-import {
-  BOARD_POST,
-  CLIENT_RATING,
-  COMPLIANCE_ROWS,
-  PASSPORT_LINES,
-  PEOPLE,
-  TENANT_JOB,
-} from '../content/samples'
+import { BOARD_POST, CLIENT_RATING, COMPLIANCE_ROWS, PEOPLE, TENANT_JOB } from '../content/samples'
 
 /** A picture of a screen: inert, with its words given to screen readers once, in the caption. */
 export function Picture({
@@ -76,24 +68,33 @@ const PROBLEMS = [
   { value: 'broken', label: 'Something broken' },
 ] as const
 
-function ReportPhone() {
+/** The second question of a report. Sarah's damp bedroom by default; her leaking hall valve too. */
+export function ReportPhone({
+  room = 'bedroom',
+  problem = 'damp',
+  className,
+}: {
+  room?: string
+  problem?: (typeof PROBLEMS)[number]['value']
+  className?: string
+}) {
   return (
-    <div data-role-accent="tenant">
+    <div data-role-accent="tenant" className={className}>
       <Phone>
         <div className="flex flex-col gap-5">
           <ProgressSteps
             steps={['Room', 'Problem', 'Photos', 'Urgency', 'Access', 'Check answers']}
             current={1}
           />
-          <h3 className="font-display text-display-m leading-tight font-semibold text-ink">
-            What’s wrong in the bedroom?
-          </h3>
+          <p className="font-display text-display-m leading-tight font-semibold text-ink">
+            What’s wrong in the {room}?
+          </p>
           <RadioGroup
             label="What’s wrong"
             hideLabel
             variant="cards"
             options={PROBLEMS}
-            defaultValue="damp"
+            defaultValue={problem}
           />
           <Button fullWidth size="lg" tabIndex={-1}>
             Continue
@@ -104,7 +105,7 @@ function ReportPhone() {
   )
 }
 
-function NoticeCard() {
+export function NoticeCard() {
   return (
     <MessageBubble
       message={{
@@ -134,30 +135,6 @@ export function TenantNoticePicture() {
   return (
     <Picture caption="Written notice of every visit, at least 48 hours ahead.">
       <NoticeCard />
-    </Picture>
-  )
-}
-
-/** The phone with the visit notice resting over its corner. */
-export function TenantPicture() {
-  return (
-    <Picture caption="Reporting takes about a minute, and every visit comes with written notice.">
-      <div className="relative mx-auto flex max-w-xl flex-col sm:block sm:pb-36">
-        <div className="sm:mr-auto sm:w-[21rem]">
-          <ReportPhone />
-        </div>
-        <div className="relative z-10 -mt-5 ml-auto w-[88%] max-w-[20rem] sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:w-[18.5rem] [&>div]:shadow-overlay">
-          <NoticeCard />
-        </div>
-      </div>
-    </Picture>
-  )
-}
-
-export function TenantPassportPicture() {
-  return (
-    <Picture caption="The tenant passport. Never public, and only the tenant can share it.">
-      <PassportCard landlordCount={2} lines={PASSPORT_LINES} tenantName={PEOPLE.sarah.name} />
     </Picture>
   )
 }

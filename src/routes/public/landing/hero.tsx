@@ -1,53 +1,79 @@
 import { Link } from 'react-router'
-import { ArrowRightIcon, FlaskIcon, MapPinIcon } from '@phosphor-icons/react'
+import { ArrowRightIcon, MapPinIcon } from '@phosphor-icons/react'
 import { BRAND } from '@/config/brand'
 import { buttonVariants } from '@/components/ui/button'
-import { START_PATH } from '@/session'
 import { Container } from '../layout/parts'
-import { HeroVisual } from './hero-visual'
-import { PersonaLinks } from './persona-links'
+import { HeroFilm } from './hero-film'
+import { MoreToTry, PersonaLinks } from './persona-links'
+import { leadClass } from './parts'
+// Fraunces italic, for the one phrase per heading that leans. Fetched only once it is used.
+import '@fontsource-variable/fraunces/full-italic.css'
+
+/** "Every home," then "on the record." in italic on its own line. Plain if there's no comma. */
+function Tagline() {
+  const comma = BRAND.tagline.indexOf(', ')
+  if (comma < 0) return <>{BRAND.tagline}</>
+  return (
+    <>
+      <span className="block">{BRAND.tagline.slice(0, comma + 1)}</span>{' '}
+      <em className="block font-[460] italic">{BRAND.tagline.slice(comma + 2)}</em>
+    </>
+  )
+}
 
 export function Hero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative pt-8 pb-16 sm:pt-14 lg:pt-16 lg:pb-24"
+      className="relative pt-8 pb-16 sm:pt-12 lg:pt-12 lg:pb-24"
     >
-      <Container className="grid items-center gap-10 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.16fr)] lg:gap-12">
-        <div className="flex flex-col items-start gap-6">
-          <p className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface py-1 pr-3 pl-2 text-small font-semibold text-ink shadow-soft">
-            <MapPinIcon weight="fill" aria-hidden className="size-4 text-brand" />
-            Launching in Aberdeen
-          </p>
-          <h1
-            id="hero-title"
-            className="font-display text-[clamp(2.75rem,1.75rem+4.2vw,4.75rem)] leading-[1.0] font-semibold tracking-[-0.035em] text-balance text-ink"
-          >
-            {BRAND.tagline}
-          </h1>
-          <p className="max-w-xl text-[clamp(1.125rem,1rem+0.45vw,1.3125rem)] leading-normal text-pretty text-muted">
-            Tenants, landlords and trades share one record of every repair, then rate each other
-            fairly once the work is done.
-          </p>
-          <div className="flex w-full flex-col gap-(--gap-touch) sm:w-auto sm:flex-row">
-            <Link to={START_PATH} className={buttonVariants({ size: 'lg' })}>
-              Try the demo
-              <ArrowRightIcon weight="bold" aria-hidden />
-            </Link>
-            <Link to="/signup" className={buttonVariants({ variant: 'secondary', size: 'lg' })}>
-              Sign up free
-            </Link>
+      <Container>
+        <div className="grid gap-7 lg:grid-cols-12 lg:items-end lg:gap-x-12">
+          <div className="flex flex-col gap-6 lg:col-span-7">
+            <p className="inline-flex items-center gap-2 self-start rounded-full border border-line bg-surface py-1 pr-3.5 pl-2 text-small font-semibold text-ink shadow-soft">
+              <MapPinIcon weight="fill" aria-hidden className="size-4 text-brand" />
+              Launching in Aberdeen
+              <span aria-hidden="true" className="text-muted">
+                ·
+              </span>
+              <span className="font-medium text-muted">Free during launch</span>
+            </p>
+            <h1
+              id="hero-title"
+              className="font-display text-[clamp(3.1rem,1.35rem+6.4vw,7rem)] leading-[0.94] font-[560] tracking-[-0.036em] text-ink"
+            >
+              <Tagline />
+            </h1>
           </div>
-          <div className="flex flex-col gap-3 pt-1">
-            <p className="text-small font-semibold text-ink">Or go straight in as</p>
-            <PersonaLinks />
+          <div className="flex flex-col gap-6 lg:col-span-5 lg:pb-2">
+            <p className={`${leadClass} max-w-2xl text-muted`}>
+              Tenants, landlords and trades share one record of every repair. When the work is done,
+              they rate each other in plain words, and each rating stays hidden until both sides are
+              in.
+            </p>
+            <div className="flex flex-col gap-(--gap-touch) sm:flex-row">
+              <Link to="/demo" className={buttonVariants({ size: 'lg' })}>
+                Try the demo
+                <ArrowRightIcon weight="bold" aria-hidden />
+              </Link>
+              <Link to="/signup" className={buttonVariants({ variant: 'secondary', size: 'lg' })}>
+                Sign up free
+              </Link>
+            </div>
+            <p className="text-small text-muted">
+              Opens Sarah’s, Graham’s and Kev’s phones side by side. No sign-up, and everyone in it
+              is made up.
+            </p>
           </div>
-          <p className="flex items-center gap-2 text-caption text-muted">
-            <FlaskIcon weight="duotone" aria-hidden className="size-4 shrink-0" />A working demo
-            with fictional people and places
-          </p>
         </div>
-        <HeroVisual />
+
+        <HeroFilm className="mt-10 sm:mt-12 lg:mt-14" />
+
+        <div className="mt-8 flex flex-col gap-3 sm:mt-10 lg:mt-8 lg:flex-row lg:items-center lg:gap-5">
+          <p className="text-small font-semibold text-ink">Or go straight in as</p>
+          <PersonaLinks />
+          <MoreToTry className="lg:ml-1" />
+        </div>
       </Container>
     </section>
   )

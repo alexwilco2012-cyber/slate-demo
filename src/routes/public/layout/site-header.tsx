@@ -9,7 +9,6 @@ import { RoleIcon } from '@/components/ui/role-icon'
 import { Logo } from '@/components/slate/logo'
 import type { Role } from '@/domain/types'
 import { useFocusAfterLink } from '@/routes/_shell/route-effects'
-import { START_PATH } from '@/session'
 import { Container } from './parts'
 import { ThemeChoice } from './theme-choice'
 
@@ -101,7 +100,7 @@ function MobileMenu() {
           </ul>
           <div className="flex flex-col gap-(--gap-touch)">
             <Link
-              to={START_PATH}
+              to="/demo"
               onClick={close}
               className={buttonVariants({ size: 'lg', fullWidth: true })}
             >
@@ -178,7 +177,7 @@ export function SiteHeader({ focused = false }: { focused?: boolean }) {
             Sign up
           </Link>
         )}
-        <Link to={START_PATH} className={buttonVariants({ size: 'sm', className: 'text-body' })}>
+        <Link to="/demo" className={buttonVariants({ size: 'sm', className: 'text-body' })}>
           Try the demo
         </Link>
         {focused ? null : <MobileMenu />}

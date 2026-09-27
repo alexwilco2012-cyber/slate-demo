@@ -1,0 +1,210 @@
+/*
+ * The front page only. Colours for the drawn Aberdeen scenes (golden hour in light mode, dusk in
+ * dark), the paper grain, and the slow loops that make the hero breathe. Every loop is paused by
+ * [data-paused] (the hero's Pause button) and by the reduced-motion rule in src/index.css.
+ *
+ * Text never sits on these scenes directly: captions and cards are on solid surfaces.
+ */
+
+.lp {
+  /* Sky, top to horizon, and the low sun. */
+  --scene-sky-1: light-dark(#eed2ad, #0f1b18);
+  --scene-sky-2: light-dark(#f4e3cb, #182a25);
+  --scene-sky-3: light-dark(#f8efe2, #2a2a24);
+  --scene-sun: light-dark(rgb(238 176 76 / 0.42), rgb(222 146 52 / 0.22));
+  --scene-disc: light-dark(#fff3dc, #f3c77a);
+  --scene-haze: light-dark(rgb(247 242 234 / 0.6), rgb(27 23 20 / 0.4));
+  --scene-wash: light-dark(rgb(244 176 82 / 0.55), rgb(226 150 48 / 0.18));
+
+  /* Underlines for the three parties in running text: decoration only, the words stay ink. */
+  --mark-tenant: light-dark(#d9764f, #f08a6c);
+  --mark-landlord: light-dark(#6fa98a, #7fc4a0);
+  --mark-trade: light-dark(#e6b447, #f2c14e);
+
+  /* Front doors in the closing picture: heritage paint in the three role colours, the same by
+     day and by night, as paint is. */
+  --paint-tenant: #a8401f;
+  --paint-landlord: #2f6a4f;
+  --paint-trade: #d9a02a;
+  --paint-brass: #f3dca8;
+}
+
+/* The row of tenements further down the street: paler, as if through a little haze. */
+.lp-far {
+  --illo-granite: light-dark(#ecdcc3, #1d2b27);
+  --illo-granite-shade: light-dark(#e4d2b6, #1a2622);
+  --illo-roof: light-dark(#c3bba7, #152019);
+  --illo-roof-edge: light-dark(#b5ad98, #121b17);
+  --illo-line: light-dark(#dccab0, #26352f);
+  --illo-glass: light-dark(#eadfcc, #16211d);
+  --illo-lit: light-dark(#f2d18c, #9c6c1f);
+  --illo-door: light-dark(#a9b6ad, #1e2f2a);
+}
+
+.lp-sky {
+  background: linear-gradient(
+    180deg,
+    var(--scene-sky-1),
+    var(--scene-sky-2) 48%,
+    var(--scene-sky-3)
+  );
+}
+
+/* A low sun: a soft disc with a wide halo, sitting just above the far roofs. */
+.lp-sun {
+  background:
+    radial-gradient(
+      circle at 27% 47%,
+      var(--scene-disc) 0 3.4%,
+      color-mix(in oklab, var(--scene-disc), transparent 50%) 4.2%,
+      transparent 5.4%
+    ),
+    radial-gradient(38% 52% at 27% 47%, var(--scene-sun), transparent 70%);
+  transform-origin: 27% 47%;
+}
+
+/* The near row in low sun: lit windows a soft amber, not a lamp's yellow. */
+.lp-near {
+  --illo-lit: light-dark(#e9c27a, #d99a22);
+  --illo-glass: light-dark(#d2d5cd, #1a1614);
+}
+
+/* Warm light raking in from the left, over sky and stone alike. */
+.lp-wash {
+  pointer-events: none;
+  background: linear-gradient(100deg, var(--scene-wash), transparent 58%);
+  mix-blend-mode: soft-light;
+}
+
+/* Paper grain: a tiny tile of noise, printed over drawings and photos alike. The element must
+   already be positioned (these rules are unlayered, so they would beat Tailwind's utilities). */
+.lp-grain {
+  isolation: isolate;
+}
+.lp-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.1;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .17 0 0 0 0 .13 0 0 0 0 .1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .lp-grain::after {
+    opacity: 0.16;
+    mix-blend-mode: soft-light;
+  }
+}
+[data-theme='dark'] .lp-grain::after {
+  opacity: 0.16;
+  mix-blend-mode: soft-light;
+}
+
+/* ── The hero's slow loops ──────────────────────────────────────────────────────────────── */
+
+@keyframes lp-breathe {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 -7px;
+  }
+}
+@keyframes lp-glow {
+  from {
+    opacity: 0.8;
+    scale: 1;
+  }
+  to {
+    opacity: 1;
+    scale: 1.06;
+  }
+}
+@keyframes lp-drift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: -2.5% 0;
+  }
+}
+
+.lp-breathe {
+  animation: lp-breathe 6.5s var(--ease-standard) infinite alternate;
+}
+.lp-glow {
+  animation: lp-glow 9s ease-in-out infinite alternate;
+}
+.lp-drift {
+  animation: lp-drift 38s ease-in-out infinite alternate;
+}
+[data-paused] .lp-breathe,
+[data-paused] .lp-glow,
+[data-paused] .lp-drift,
+[data-covered] .lp-glow,
+[data-covered] .lp-drift {
+  animation-play-state: paused;
+}
+
+/* The line under the chapter now playing fills from the left, driven by --chapter-progress. */
+.lp-chapter-fill {
+  transform-origin: left center;
+  transform: scaleX(var(--fill, 0));
+}
+.lp-film [aria-current='step'] .lp-chapter-fill {
+  --fill: var(--chapter-progress, 0);
+}
+
+/* Chapter cards: all three share one grid cell, so the stack is always the tallest one's height
+   and nothing below moves when the chapter changes. */
+.lp-stack {
+  display: grid;
+}
+.lp-stack > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity 450ms var(--ease-out-soft),
+    translate 450ms var(--ease-out-soft);
+}
+.lp-stack > [data-state='before'] {
+  opacity: 0;
+  translate: 0 14px;
+}
+.lp-stack > [data-state='after'] {
+  opacity: 0;
+  translate: 0 -10px;
+}
+
+/* A party named in running text: a thick underline in their colour, like a highlighter. */
+.lp-mark {
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.09em;
+  text-underline-offset: 0.14em;
+  text-decoration-skip-ink: none;
+}
+.lp-mark[data-mark='tenant'] {
+  text-decoration-color: var(--mark-tenant);
+}
+.lp-mark[data-mark='landlord'] {
+  text-decoration-color: var(--mark-landlord);
+}
+.lp-mark[data-mark='trade'] {
+  text-decoration-color: var(--mark-trade);
+}
+
+/* Revealed ratings arrive together: one short rise and fade, the same for both sides. */
+@keyframes lp-reveal-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+.lp-reveal-in {
+  animation: lp-reveal-in 420ms var(--ease-out-soft) both;
+}
